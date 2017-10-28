@@ -36,7 +36,7 @@ public class UserMealsUtil {
                 .collect(Collectors.toMap(
                         p -> p.getDateTime().toLocalDate(),
                         UserMeal::getCalories,
-                        (calories1, calories2) -> calories1 + calories2));
+                        Integer::sum));
 
         return mealList.stream()
                 .filter(m -> TimeUtil.isBetween(m.getDateTime().toLocalTime(), startTime, endTime))
