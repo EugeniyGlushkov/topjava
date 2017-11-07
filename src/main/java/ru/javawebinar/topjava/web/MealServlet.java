@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
+import ru.javawebinar.topjava.DAO.DAO;
 import ru.javawebinar.topjava.DAO.MapDAOImpl;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealWithExceed;
@@ -20,9 +21,8 @@ import java.util.stream.Collectors;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet{
-    private MapDAOImpl mapDao = new MapDAOImpl();
+    private DAO mapDao = new MapDAOImpl();
     private static final Logger log = getLogger(MealServlet.class);
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
