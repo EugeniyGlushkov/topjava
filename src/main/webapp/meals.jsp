@@ -27,15 +27,29 @@
             <td><fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${ parsedDateTime }" /></td>
             <td>${meal.description}</td>
             <td>${meal.calories}</td>
-            <td><a href="meals?act=del&val=${meal.ID}">del</a></td>
+            <td><form name="del" method="post">
+                <input type="text" name="action" value="del" hidden>
+                <input type="text" name="ID" value="${meal.ID}" hidden>
+                <input type="submit" value="Delete">
+                </form>
+            </td>
+            <td><form name="edit" method="post">
+                <input type="text" name="action" value="edit" hidden>
+                <input type="text" name="ID" value="${meal.ID}" hidden>
+                <input type="submit" value="Edit">
+                </form>
+            </td>
         </tr >
     </c:forEach>
 </table>
 
 <br/>
-<br/>
+
+<h3>${action}</h3>
 
 <form method="post">
+    <input type="text" name="ID" value="${currentid}" hidden>
+    <input type="text" name="action" value="add" hidden>
     Date
     <input type="datetime-local" name="datetime">
     <br/>
@@ -45,7 +59,7 @@
     Calories
     <input type="text" name="calories">
     <br/>
-    <input type="submit" value="Add">
+    <input type="submit" value="${action}">
 </form>
 </body>
 </html>
