@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,12 +21,8 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     @Override
     public boolean delete(int id) {
         log.info("delete {}", id);
-        try {
-            repository.remove(id);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+
+        return repository.remove(id) == null ? false : true;
     }
 
     @Override
@@ -54,12 +49,16 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
 
         List<User> users = new ArrayList<>(repository.values());
 
-        users.sort(new Comparator<User>() {
+        /*users.sort(new Comparator<User>() {
             @Override
             public int compare(User o1, User o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
+
+        users.sort((usr1, usr2) -> usr1.getName().compareTo(usr2.getName()));
+        */
+        users.sort(Comparator.comparing(User::getName));
 
         return users;
     }
@@ -68,14 +67,12 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
 
-        //User user = null;
-
         for (User user : repository.values()){
-            if (user.getEmail() == email) {
+            if (user.getEmail().equals(email)) {
                 return user;
             }
         }
 
-        throw new NotFoundException("There's no user with e-mail " + email);
+        return null;
     }
 }
