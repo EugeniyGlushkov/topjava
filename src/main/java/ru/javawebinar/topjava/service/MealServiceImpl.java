@@ -1,7 +1,7 @@
 package ru.javawebinar.topjava.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.javawebinar.topjava.AuthorizedUser;
+import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
+@Service
 public class MealServiceImpl implements MealService {
 
     private MealRepository repository;
@@ -26,14 +27,14 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void delete(int id) throws NotFoundException {
-        checkNotFoundWithId(repository.delete(id, AuthorizedUser.id()), id);
+    public void delete(int id, Integer userId) throws NotFoundException {
+        checkNotFoundWithId(repository.delete(id, userId), id);
 
     }
 
     @Override
-    public Meal get(int id) throws NotFoundException {
-        return checkNotFoundWithId(repository.get(id, AuthorizedUser.id()), id);
+    public Meal get(int id, Integer userId) throws NotFoundException {
+        return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public List<Meal> getAll() {
-        return new ArrayList<>(repository.getAll(AuthorizedUser.id()));
+    public List<Meal> getAll(Integer userId) {
+        return new ArrayList<>(repository.getAll(userId));
     }
 }
