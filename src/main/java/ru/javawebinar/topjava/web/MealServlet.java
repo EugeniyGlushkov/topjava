@@ -2,6 +2,8 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
@@ -29,7 +31,10 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mealRestController = new MealRestController();
+
+        try (ConfigurableApplicationContext conAppCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")){
+            mealRestController = conAppCtx.getBean(MealRestController.class);
+        }
     }
 
     @Override
@@ -44,7 +49,7 @@ public class MealServlet extends HttpServlet {
                 AuthorizedUser.id());
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        mealRestController.update(meal, meal.getId());
+        mealRestController.update(meal);
         response.sendRedirect("meals");
     }
 
