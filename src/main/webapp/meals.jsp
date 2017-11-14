@@ -19,6 +19,60 @@
 <body>
 <section>
     <h3><a href="index.html">Home</a></h3>
+
+    <jsp:useBean id="autuser" type="ru.javawebinar.topjava.AuthorizedUser" scope="request"/>
+
+    <br/>
+
+    Current user is: ${autuser.id()}
+
+    <form method="post" action="meals">
+        <input hidden name="action" value="choose">
+        <select name = "autuser" >
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+
+        <input type="submit" value="choose user">
+    </form>
+
+    <br/>
+
+    <table>
+        <form method="post" id="timedatefilter" action="meals">
+            <tr align="right">
+                <td>
+                    <input hidden name="action" value="filter">
+                    from date
+                    <input type="date" name="startdate" value="${autuser.getDateMin()}">
+                    <br/>
+                    to date
+                    <input type="date" name="enddate" value="${autuser.getDateMax()}">
+                </td>
+                <td>
+                    from time
+                    <input type="time" name="starttime" value="${autuser.getTimeMin()}">
+                    <br/>
+                    to time
+                    <input type="time" name="endtime" value="${autuser.getTimeMax()}">
+                </td>
+            </tr>
+        </form>
+        <tr align="right">
+            <td>
+                <form method="post" id="reset" action="meals">
+                    <input hidden name="action" value="reset">
+                </form>
+                <input type="submit" form="reset" value="reset">
+            </td>
+            <td align="top">
+                <input type="submit" form="timedatefilter" value="filter">
+            </td>
+        </tr>
+    </table>
+
+    <br/>
+
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <hr/>

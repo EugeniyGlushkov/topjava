@@ -27,29 +27,48 @@ public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
     private MealRestController mealRestController;
+    private ConfigurableApplicationContext conAppCtx;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        try (ConfigurableApplicationContext conAppCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")){
-            mealRestController = conAppCtx.getBean(MealRestController.class);
-        }
+        conAppCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        mealRestController = conAppCtx.getBean(MealRestController.class);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String id = request.getParameter("id");
 
-        Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
-                LocalDateTime.parse(request.getParameter("dateTime")),
-                request.getParameter("description"),
-                Integer.valueOf(request.getParameter("calories")),
-                AuthorizedUser.id());
+        String action = request.getParameter("action");
 
-        log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        mealRestController.update(meal);
+        if (action != null){
+            switch (action){
+                case "choose":
+                    mealRestController.choose(Integer.valueOf(request.getParameter("autuser")));
+                    mealRestController.resetFilter();
+                    break;
+                case "filter":
+                    mealRestController.setMinDate(request.getParameter("startdate"),
+                            request.getParameter("enddate"),
+                            request.getParameter("starttime"),
+                            request.getParameter("endtime"));
+                    break;
+                case "reset":
+                    mealRestController.resetFilter();
+            }
+        } else {
+            String id = request.getParameter("id");
+            Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
+                    LocalDateTime.parse(request.getParameter("dateTime")),
+                    request.getParameter("description"),
+                    Integer.valueOf(request.getParameter("calories")));
+
+            log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+            mealRestController.update(meal);
+        }
+
         response.sendRedirect("meals");
     }
 
@@ -67,7 +86,7 @@ public class MealServlet extends HttpServlet {
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, AuthorizedUser.id()) :
+                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         mealRestController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
@@ -76,10 +95,17 @@ public class MealServlet extends HttpServlet {
             default:
                 log.info("getAll");
                 request.setAttribute("meals",
-                        MealsUtil.getWithExceeded(mealRestController.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY));
+                        mealRestController.getAll());
+                request.setAttribute("autuser", new AuthorizedUser());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        conAppCtx.close();
     }
 
     private int getId(HttpServletRequest request) {

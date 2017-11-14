@@ -54,11 +54,11 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
             public int compare(User o1, User o2) {
                 return o1.getName().compareTo(o2.getName());
             }
-        });
+        });*/
 
-        users.sort((usr1, usr2) -> usr1.getName().compareTo(usr2.getName()));
-        */
-        users.sort(Comparator.comparing(User::getName));
+        users.sort((usr1, usr2) -> usr1.getName().compareTo(usr2.getName()) == 0 ? usr1.getId().compareTo(usr2.getId()) :
+                usr1.getName().compareTo(usr2.getName()));
+
 
         return users;
     }
