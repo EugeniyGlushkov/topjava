@@ -1,6 +1,13 @@
 package ru.javawebinar.topjava.service;
 
+import org.apache.commons.logging.impl.SLF4JLogFactory;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -26,6 +34,40 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        private long startTime;
+        @Override
+        protected void starting(Description description) {
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            long endTime = System.currentTimeMillis();
+            SLF4JLogFactory.getFactory().getInstance("log").warn("Test: "
+                    + description.getMethodName() + ", time is " + (endTime - startTime) + " ms");
+        }
+    };
+    @ClassRule
+    public static TestRule classWatcher = new TestWatcher() {
+        private long startTime;
+        @Override
+        protected void starting(Description description) {
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            long endTime = System.currentTimeMillis();
+            SLF4JLogFactory.getFactory().getInstance("log").warn("All tests: "
+                    + description.getTestClass().getSimpleName() + " are completed, time is " + (endTime - startTime) + " ms");
+        }
+    };
+
     static {
         SLF4JBridgeHandler.install();
     }
@@ -34,17 +76,20 @@ public class MealServiceTest {
     private MealService service;
 
     @Test
+    @Transactional
     public void testDelete() throws Exception {
         service.delete(MEAL1_ID, USER_ID);
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testDeleteNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.delete(MEAL1_ID, 1);
     }
 
     @Test
+    @Transactional
     public void testSave() throws Exception {
         Meal created = getCreated();
         service.create(created, USER_ID);
@@ -53,33 +98,39 @@ public class MealServiceTest {
 
     @Test
     public void testGet() throws Exception {
+
         Meal actual = service.get(ADMIN_MEAL_ID, ADMIN_ID);
         assertMatch(actual, ADMIN_MEAL1);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testGetNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
     @Test
+    @Transactional
     public void testUpdate() throws Exception {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
         assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testUpdateNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.update(MEAL1, ADMIN_ID);
     }
 
     @Test
+    @Transactional
     public void testGetAll() throws Exception {
         assertMatch(service.getAll(USER_ID), MEALS);
     }
 
     @Test
+    @Transactional
     public void testGetBetween() throws Exception {
         assertMatch(service.getBetweenDates(
                 LocalDate.of(2015, Month.MAY, 30),
