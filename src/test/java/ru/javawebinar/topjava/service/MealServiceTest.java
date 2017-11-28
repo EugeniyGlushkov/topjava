@@ -21,6 +21,8 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -37,6 +39,8 @@ public class MealServiceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private static Map<String, Long> mapOfTimes = new HashMap<>();
+
     @Rule
     public TestRule watcher = new TestWatcher() {
         private long startTime;
@@ -48,24 +52,19 @@ public class MealServiceTest {
         @Override
         protected void finished(Description description) {
             long endTime = System.currentTimeMillis();
-            SLF4JLogFactory.getFactory().getInstance("log").warn("Test: "
-                    + description.getMethodName() + ", time is " + (endTime - startTime) + " ms");
+            long difTime = endTime - startTime;
+            mapOfTimes.put(description.getMethodName(), difTime);
+            SLF4JLogFactory.getFactory().getInstance("log").info("Test: "
+                    + description.getMethodName() + ", time is " + difTime + " ms");
         }
     };
     @ClassRule
     public static TestRule classWatcher = new TestWatcher() {
-        private long startTime;
-        @Override
-        protected void starting(Description description) {
-            startTime = System.currentTimeMillis();
-        }
-
         @Override
         protected void finished(Description description) {
-            long endTime = System.currentTimeMillis();
-            SLF4JLogFactory.getFactory().getInstance("log").warn("All tests: "
-                    + description.getTestClass().getSimpleName() + " are completed, time is " + (endTime - startTime) + " ms");
-        }
+            description.getChildren().forEach(description1 ->
+                SLF4JLogFactory.getFactory().getInstance("log").info(String.format("%s || %d", description1.getMethodName(), mapOfTimes.get(description1.getMethodName()))));
+            }
     };
 
     static {

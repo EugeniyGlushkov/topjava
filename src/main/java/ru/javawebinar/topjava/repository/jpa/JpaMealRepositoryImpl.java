@@ -1,9 +1,12 @@
 package ru.javawebinar.topjava.repository.jpa;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.repository.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,23 +16,30 @@ import java.util.List;
 @Repository
 @Transactional(readOnly = true)
 public class JpaMealRepositoryImpl implements MealRepository {
+    UserRepository userRepo;
 
     @PersistenceContext
     private EntityManager em;
 
+    @Autowired
+    public JpaMealRepositoryImpl(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
+        User currentUser = userRepo.get(userId);
+        Meal currentMeal = new Meal(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
+        currentMeal.setUser(currentUser);
+
         if (meal.isNew()) {
             em.persist(meal);
         } else {
-            if ( em.createNamedQuery(Meal.UPDATE)
-                    .setParameter("date_time", meal.getDateTime())
-                    .setParameter("description", meal.getDescription())
-                    .setParameter("calories", meal.getCalories())
-                    .setParameter("id", meal.getId())
-                    .setParameter("user_id", userId).executeUpdate()== 0) {
+            if (get(meal.getId(), userId) == null) {
                 return null;
+            } else {
+                em.merge(currentMeal);
             }
         }
 
@@ -49,10 +59,6 @@ public class JpaMealRepositoryImpl implements MealRepository {
     public Meal get(int id, int userId) {
         Meal meal = em.find(Meal.class, id);
         return meal.getUser().getId() != userId ? null : meal;
-        /*return em.createNamedQuery(Meal.GET, Meal.class)
-                .setParameter("id", id)
-                .setParameter("user_id", userId)
-                .getSingleResult();*/
     }
 
     @Override
