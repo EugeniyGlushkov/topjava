@@ -26,13 +26,11 @@ public class MealTestData {
 
     public static Meal getCreated() {
         Meal meal = new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Созданный ужин", 300);
-        meal.setUser(UserTestData.USER);
         return meal;
     }
 
     public static Meal getUpdated() {
         Meal meal = new Meal(MEAL1_ID, MEAL1.getDateTime(), "Обновленный завтрак", 200);
-        meal.setUser(UserTestData.USER);
         return meal;
     }
 

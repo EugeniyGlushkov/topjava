@@ -16,22 +16,15 @@ import java.util.List;
 @Repository
 @Transactional(readOnly = true)
 public class JpaMealRepositoryImpl implements MealRepository {
-    UserRepository userRepo;
 
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    public JpaMealRepositoryImpl(UserRepository userRepo) {
-        this.userRepo = userRepo;
-    }
-
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        User currentUser = userRepo.get(userId);
-        Meal currentMeal = new Meal(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
-        currentMeal.setUser(currentUser);
+        User ref = em.getReference(User.class, userId);
+        meal.setUser(ref);
 
         if (meal.isNew()) {
             em.persist(meal);
@@ -39,7 +32,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
             if (get(meal.getId(), userId) == null) {
                 return null;
             } else {
-                em.merge(currentMeal);
+                em.merge(meal);
             }
         }
 
@@ -70,14 +63,10 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return em.createNamedQuery(Meal.BETWEEN)
+        return em.createNamedQuery(Meal.BETWEEN, Meal.class)
                 .setParameter(1, userId)
                 .setParameter("start_date", startDate)
                 .setParameter("end_date", endDate)
                 .getResultList();
-    }
-
-    public EntityManager getEm() {
-        return em;
     }
 }

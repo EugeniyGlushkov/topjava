@@ -18,7 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
@@ -75,7 +74,6 @@ public class MealServiceTest {
     private MealService service;
 
     @Test
-    @Transactional
     public void testDelete() throws Exception {
         service.delete(MEAL1_ID, USER_ID);
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
@@ -88,7 +86,6 @@ public class MealServiceTest {
     }
 
     @Test
-    @Transactional
     public void testSave() throws Exception {
         Meal created = getCreated();
         service.create(created, USER_ID);
@@ -109,7 +106,6 @@ public class MealServiceTest {
     }
 
     @Test
-    @Transactional
     public void testUpdate() throws Exception {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
@@ -123,13 +119,11 @@ public class MealServiceTest {
     }
 
     @Test
-    @Transactional
     public void testGetAll() throws Exception {
         assertMatch(service.getAll(USER_ID), MEALS);
     }
 
     @Test
-    @Transactional
     public void testGetBetween() throws Exception {
         assertMatch(service.getBetweenDates(
                 LocalDate.of(2015, Month.MAY, 30),
