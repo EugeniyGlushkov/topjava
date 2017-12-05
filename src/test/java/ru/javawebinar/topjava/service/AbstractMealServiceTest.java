@@ -12,10 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -36,18 +38,11 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
+@ActiveProfiles(resolver = ActiveDbProfileResolver.class)
 public abstract class AbstractMealServiceTest {
     private static final Logger log = getLogger("result");
 
     private static StringBuilder results = new StringBuilder();
-
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Before
-    public void setUp() throws Exception {
-        cacheManager.getCache("meals").clear();
-    }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -75,6 +70,8 @@ public abstract class AbstractMealServiceTest {
                 "\n---------------------------------" +
                 results +
                 "\n---------------------------------");
+
+        results = new StringBuilder();
     }
 
     @Autowired

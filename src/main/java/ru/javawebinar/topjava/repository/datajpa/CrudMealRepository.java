@@ -25,7 +25,6 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Override
     Optional<Meal> findById(Integer integer);
 
-    @Modifying
     @Query("SELECT m FROM Meal m WHERE m.user.id=:userId ORDER BY m.dateTime DESC")
     List<Meal> findAll(@Param("userId") int UserId);
 
