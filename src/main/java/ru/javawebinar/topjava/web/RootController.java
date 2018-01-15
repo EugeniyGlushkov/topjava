@@ -16,7 +16,7 @@ public class RootController {
 
     @GetMapping("/")
     public String root() {
-        return "redirect:meals";
+        return "meals";
     }
 
     @GetMapping("/users")
