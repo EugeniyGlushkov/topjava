@@ -1,18 +1,25 @@
 package ru.javawebinar.topjava.to;
 
+import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class MealTo extends BaseTo implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTime;
 
+    @Size(min = 2, max = 120, message = "length must between 2 and 120 characters")
     private String description;
 
+    @Range(min = 10, max = 5000)
+    @NotNull
     private Integer calories;
 
     public MealTo() {
