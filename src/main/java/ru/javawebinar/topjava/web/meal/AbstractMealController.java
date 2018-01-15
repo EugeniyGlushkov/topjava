@@ -30,23 +30,6 @@ public abstract class AbstractMealController {
         return service.get(id, userId);
     }
 
-    public MealWithExceed getWithExceed(int id) {
-        MealWithExceed mealWithExceed = null;
-
-        for (MealWithExceed meal : getAll()) {
-            if (meal.getId() == id) {
-                mealWithExceed = meal;
-                break;
-            }
-        }
-
-        if (mealWithExceed == null) {
-            throw new IllegalArgumentException("Meal is deleted.");
-        }
-
-        return mealWithExceed;
-    }
-
     public void delete(int id) {
         int userId = AuthorizedUser.id();
         log.info("delete meal {} for user {}", id, userId);
