@@ -59,11 +59,14 @@ public class UserMealsUtil {
 
         Map<LocalDate, Integer> caloriesInDay = new HashMap<>();
 
-        return mealList.stream().map(m->{caloriesInDay.merge(m.getDateTime().toLocalDate(), m.getCalories(), (x, y) -> x + y); return m;})
-                .filter(m->TimeUtil.isBetween(m.getDateTime().toLocalTime(),startTime,endTime))
+        return mealList.stream().map(m -> {
+            caloriesInDay.merge(m.getDateTime().toLocalDate(), m.getCalories(), (x, y) -> x + y);
+            return m;
+        })
+                .filter(m -> TimeUtil.isBetween(m.getDateTime().toLocalTime(), startTime, endTime))
                 .collect(Collectors.toList())
                 .stream()
-                .map(m->new UserMealWithExceed(m,
+                .map(m -> new UserMealWithExceed(m,
                         caloriesInDay.get(m.getDateTime().toLocalDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
