@@ -32,10 +32,6 @@ public class Meal {
     this.id = id;
   }
 
-  public int getCalories() {
-    return calories;
-  }
-
   public LocalDateTime getDateTime() {
     return dateTime;
   }
